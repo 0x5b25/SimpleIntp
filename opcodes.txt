@@ -1,0 +1,54 @@
+What do we need:
+
+Call:
+  [object model]
+    callstatic <libName|typeName,funcName>
+    callmem <funcName>
+  [base]
+    call (closure)
+    ldfn <libName|typeName|funcName> (object) -> closure
+    ldstaticfn <libName|typeName,funcName> -> closure
+
+NewObject:
+  [object model]
+    new <libName|typeName> -> object
+    //inst (type) -> object
+    copy (object) -> object
+    ldnull -> object
+
+Type manipulation
+  [object model]
+    //ldtype (object) -> type
+    cast <libName|typeName> (object) -> object
+    //cast (type object) -> object
+    typecmp <libName|typeName> (object) -> u32
+
+Transfer
+  [object model]
+    ldmem <libName|typeName|fieldName> (object)-> object
+    stmem <libName|typeName|fieldName> (o(cls), o(val))->-2
+    ldstatic <libName|typeName,fieldName> -> object
+    ststatic <libName|typeName,fieldName> (object)
+  [base]
+    ldarg <u32> -> object     load from frame bottom + u32
+    starg <u32> (object)      store to frame bottom + u32
+    ldi <u32> -> object       load from stack top - u32
+    sti <u32> (object)        store to stack top - u32
+
+    ldloc (u32) -> object     same as ldarg
+    stloc (u32, object)       same as starg
+    ld (u32) -> object        ldi
+    st (u32, object)          sti
+
+Control flow
+    jmp
+    jz 
+    jnz
+
+Data manipulation
+    cmp
+    ceq
+
+
+Inheritance tree:
+

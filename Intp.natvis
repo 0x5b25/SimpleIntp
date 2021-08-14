@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="ManagedObjectCtrlBlock">
+    <DisplayString Condition="isInNursery&amp;(!isForward)">{{size = {objectSize}, gen = {generation}, #InNursery}}</DisplayString>
+    <DisplayString Condition="isInNursery&amp;isForward">{{size = {objectSize}, #Forward}}</DisplayString>
+    <DisplayString Condition="isVisited">{{size = {objectSize}, gen = {generation}, #InHeap #Visited}}</DisplayString>
+    <DisplayString>{{size = {objectSize}, gen = {generation}, #InHeap}}</DisplayString>
+    <Expand>
+      <Item Name="[size]">objectSize</Item>
+      <Item Name="[gen]">generation</Item>
+      <Item Name="[inNursery]">isInNursery</Item>
+      <Item Name="[forwarded]" Condition="isInNursery">isForward</Item>
+      <Item Name="[visited]" Condition="!isInNursery">isVisited</Item>
+      <Item Name="[type]">(TypeTable*)vptr</Item>
+      <ArrayItems Condition="isRaw">
+        <Size>objectSize/sizeof(ValueType)</Size>
+        <ValuePointer>(ValueType*)((char*)this + sizeof(ManagedObjectCtrlBlock))</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+
+  <Type Name="ManagedMemCtrlBlock">
+    <DisplayString>{{size = {usedBytes}, count = {objectCnt}}}</DisplayString>
+    <Expand>
+      <Item Name="[capacity]">totalBytes</Item>
+      <Item Name="[size]">usedBytes</Item>
+      <Item Name="[count]">objectCnt</Item>
+      <LinkedListItems>
+        <Size>objectCnt</Size>
+        <HeadPointer>(ManagedObjectCtrlBlock*)((char*)this + sizeof(ManagedMemCtrlBlock))</HeadPointer>
+        <NextPointer>(ManagedObjectCtrlBlock*)((char*)this + sizeof(ManagedObjectCtrlBlock) + objectSize)</NextPointer>
+        <ValueNode>(ManagedObjectCtrlBlock*)this</ValueNode>
+      </LinkedListItems>
+    </Expand>
+  </Type>
+
+  <Type Name="MajorHeap">
+    <DisplayString>{{count = {nodeCnt}}}</DisplayString>
+    <Expand>
+      <Item Name="[count]">nodeCnt</Item>
+      <LinkedListItems>
+        <Size>nodeCnt</Size>
+        <HeadPointer>headerNode.next</HeadPointer>
+        <NextPointer>next</NextPointer>
+        <ValueNode>(ManagedObjectCtrlBlock*)((char*)this + sizeof(NodeHeader))</ValueNode>
+      </LinkedListItems>
+    </Expand>
+  </Type>
+
+  <Type Name="ValueType">
+    <DisplayString Condition="type!=nullptr">{{i:{data.value}, f:{data.fval}, type:{type->name}}}</DisplayString>
+    <DisplayString Condition="type==nullptr">{{null}}</DisplayString>
+    <Expand>
+      <Item Name="[type]" Condition="type!=nullptr">type->name</Item>
+      <Item Name="[isRef]">IsRef()</Item>
+      <Item Name="[int]">data.value</Item>
+      <Item Name="[float]">data.fval</Item>
+      <Item Name="[instance]">(ManagedObjectCtrlBlock*)((char*)data.obj - sizeof(ManagedObjectCtrlBlock))</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="NodeHeader">
+    <Expand>
+      <Item Name="[content]">(ManagedObjectCtrlBlock*)((char*)this + sizeof(NodeHeader))</Item>
+      <Item Name="[next]">next</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>
+
